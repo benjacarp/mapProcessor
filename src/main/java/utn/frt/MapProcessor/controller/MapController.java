@@ -61,7 +61,7 @@ public class MapController {
             throw new ValidationException("X array and Y array should be the same length");
 
         for (int i = 0; i < xs.length; i++) {
-            points.add(new Point(xs[i], ys[i], null));
+            points.add(new Point(xs[i], ys[i], null, null));
         }
         return points;
     }
@@ -78,7 +78,38 @@ public class MapController {
             List<Point> points = new ArrayList<>();
 
             for (int i = 0; i < xs.length; i++) {
-                points.add(new Point(xs[i], ys[i], colors[i]));
+                points.add(new Point(xs[i], ys[i], colors[i], null));
+            }
+
+            if (!file.getOriginalFilename().matches(".*\\.jpg"))
+                throw new FileExtensionException("");
+
+            location = mapService.process(file, points);
+            File img = new File(location);
+            return ResponseEntity.ok().contentType(MediaType.valueOf(
+                    FileTypeMap.getDefaultFileTypeMap().getContentType(img))).body(Files.readAllBytes(img.toPath()));
+
+        } catch (ValidationException | FileExtensionException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (IOException e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @PostMapping("/imageLabels")
+    public ResponseEntity<byte[]> imageLabels(@RequestParam("file") MultipartFile file,
+                                                   @RequestParam("xs") int[] xs,
+                                                   @RequestParam("ys") int[] ys,
+                                                   @RequestParam("colors") String[] colors ,
+                                                   @RequestParam("labels") String[] labels ) {
+        try {
+
+            String location;
+
+            List<Point> points = new ArrayList<>();
+
+            for (int i = 0; i < xs.length; i++) {
+                points.add(new Point(xs[i], ys[i], colors[i], labels[i]));
             }
 
             if (!file.getOriginalFilename().matches(".*\\.jpg"))

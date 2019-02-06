@@ -26,7 +26,7 @@ public class MapService {
             throw new ValidationException("El punto X,Y debe estar dentro de la imagen");
 
         int i = 1;
-        int ratio = image.getHeight() / 20;
+        int ratio = image.getHeight() / 30;
         for (Point p : points) {
             g.setFont(new Font("default", Font.BOLD, 16));
             g.setColor(Color.green);
@@ -36,6 +36,8 @@ public class MapService {
                 g.setColor(getColor(p.getColor()));
                 g.fillOval(p.getX(), p.getY(), ratio, ratio);
             }
+            if (p.getName() != null)
+                g.drawString("pet", p.getX(), p.getY());
             i++;
         }
 
